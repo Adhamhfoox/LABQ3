@@ -6,21 +6,20 @@
 
 static DevI2C devI2c(PB_11,PB_10);
 static LSM6DSLSensor acc_gyro(&devI2c,0xD4,D4,D5); // high address
-
+int angle;
 
 float computeAngle(int x, int y, int z){
-    float res = 0;
-
-    return res;
+    angle = atan2(x, sqrt(y^2 + z^2)) * (180 / PI);
+    return angle;
 }
 
 /* Simple main function */
 int main() {
     uint8_t id;
     int32_t axes[3];
-    float res=0;
-    acc_gyro.init(NULL);
+    float pitch_angle;
 
+    acc_gyro.init(NULL);
     acc_gyro.enable_x();
     acc_gyro.enable_g();
 
@@ -31,11 +30,8 @@ int main() {
     while(1) {
 
         acc_gyro.get_x_axes(axes);
-        res = computeAngle(axes[0], axes[1], axes[2]);
-        printf("LSM6DSL: %6d, %6d, %6d, %3.2f\r\n", axes[0], axes[1], axes[2], res);
-
-
+        pitch_angle = computeAngle(axes[0], axes[1], axes[2]);
+        printf("Pitch Angle: %3.2f degrees \r\n", pitch_angle);
         thread_sleep_for(2000);
-
     }
 }
